@@ -73,31 +73,27 @@ function App() {
 
     useEffect(() => {
         dispatchStartFetching();
-        const ac = new AbortController();
 
         async function fetchItems() {
             try {
                 const { data, error } = await supabase
                     .from("items")
                     .select("*")
-                    .abortSignal(ac.signal)
                     .order("dateAdded", { ascending: false });
                 if (error) {
                     dispatchFlashMessage(`${error.message}`, "error");
                 } else {
-                    //TODO:[bug] sort of items in table changes after editing items
                     const loadedItems: ItemInterface[] = [];
                     for (const key in data) {
                         loadedItems.push({
                             ...data[key],
                             dateAdded: parseInt(data[key].dateAdded),
-                            assignedTo: JSON.parse(data[key].assignedTo),
-                            addedBy: JSON.parse(data[key].addedBy),
+                            assignedTo: data[key].assignedTo,
+                            addedBy: data[key].addedBy,
                             dateDone: data[key].dateDone ? parseInt(data[key].dateDone) : null,
                         });
                     }
                     dispatchFetchItemsSucceed(loadedItems);
-                    console.log(loadedItems);
                 }
             } catch (e) {
                 dispatchFlashMessage("An Error Occurred In Loading Items", "error");
@@ -107,9 +103,6 @@ function App() {
         }
 
         fetchItems();
-        return () => {
-            ac.abort();
-        };
     }, [state.fetchCount]);
 
     function Redirect(props: { to: string }) {

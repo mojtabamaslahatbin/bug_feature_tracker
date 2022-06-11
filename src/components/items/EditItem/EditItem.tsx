@@ -1,6 +1,6 @@
-import React, {useEffect, useLayoutEffect, useState} from "react";
-import {useParams, useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from 'react-redux'
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
     CircularProgress,
     Autocomplete,
@@ -17,12 +17,12 @@ import {
     Grid,
     Chip,
 } from "@mui/material";
-import {useFormik} from "formik";
+import { useFormik } from "formik";
 import ImageUpload from "../AddItem/ImageUpload";
-import {supabase} from "../../../database/Database";
-import {validationSchema} from "../AddItem/AddItem";
-import {EditFormInitialValues, PersonInterface} from "../../../Types/types";
-import {InitialStateType} from "../../../store/reducers/items";
+import { supabase } from "../../../database/Database";
+import { validationSchema } from "../AddItem/AddItem";
+import { EditFormInitialValues, PersonInterface } from "../../../Types/types";
+import { InitialStateType } from "../../../store/reducers/items";
 import * as actionTypes from "../../../store/actions/actionTypes";
 
 const EditItem: React.FC = () => {
@@ -45,12 +45,13 @@ const EditItem: React.FC = () => {
         addedBy: undefined,
     });
 
-    const state = useSelector((state: InitialStateType) => state)
-    const dispatch = useDispatch()
-    const dispatchFlashMessage = (message: string, type: "success" | "error") => dispatch(actionTypes.showFlashMessage(message, type))
-    const dispatchUpdateItemSucceed = () => dispatch(actionTypes.updateItemSucceed())
+    const state = useSelector((state: InitialStateType) => state);
+    const dispatch = useDispatch();
+    const dispatchFlashMessage = (message: string, type: "success" | "error") =>
+        dispatch(actionTypes.showFlashMessage(message, type));
+    const dispatchUpdateItemSucceed = () => dispatch(actionTypes.updateItemSucceed());
 
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
 
     useLayoutEffect(() => {
@@ -58,62 +59,51 @@ const EditItem: React.FC = () => {
         setIsLoading(true);
         const fetchUsers = async () => {
             try {
-                const {data, error} = await supabase.from("users").select().order("name", {ascending: true});
+                const { data, error } = await supabase
+                    .from("users")
+                    .select()
+                    .order("name", { ascending: true });
                 if (error) {
-                    dispatchFlashMessage(`${error.message}`, "error")
+                    dispatchFlashMessage(`${error.message}`, "error");
                 } else {
                     setMembers(data);
                 }
             } catch (e) {
-                dispatchFlashMessage("Fetching Users Failed", "error")
+                dispatchFlashMessage("Fetching Users Failed", "error");
                 console.error(e);
             } finally {
                 setIsLoading(false);
             }
         };
         fetchUsers();
-
-
     }, [state.appUser]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
         setIsLoading(true);
-        const ac = new AbortController();
 
         async function fetchItem() {
             try {
-                const {data, error} = await supabase
-                    .from("items")
-                    .select()
-                    .eq("id", id)
-                    .abortSignal(ac.signal)
-                    .single();
+                const { data, error } = await supabase.from("items").select().eq("id", id).single();
                 if (error) {
-                    dispatchFlashMessage(`${error.message}`, "error")
+                    dispatchFlashMessage(`${error.message}`, "error");
                 } else {
                     const receivedData = {
                         ...data,
                         dateAdded: parseInt(data.dateAdded),
-                        addedBy: JSON.parse(data.addedBy),
                     };
-                    setAssignedTo(JSON.parse(data.assignedTo));
+                    setAssignedTo(data.assignedTo);
                     setImages(data.images);
-                    console.log(receivedData)
-                    const selectedItem = state.items.filter(item => item.id === id)
                     setFormInitialValues(receivedData);
                 }
             } catch (e) {
-                dispatchFlashMessage("An Error Occurred In Reading Item", "error")
+                dispatchFlashMessage("An Error Occurred In Reading Item", "error");
             } finally {
                 setIsLoading(false);
             }
         }
 
         fetchItem();
-        return () => {
-            ac.abort();
-        };
     }, [id]);
 
     const formik = useFormik({
@@ -123,24 +113,24 @@ const EditItem: React.FC = () => {
         onSubmit: async values => {
             setIsLoading(true);
             try {
-                const {data, error} = await supabase
+                const { data, error } = await supabase
                     .from("items")
-                    .update({...values, assignedTo, images})
+                    .update({ ...values, assignedTo, images })
                     .eq("id", id);
                 if (error) {
-                    dispatchFlashMessage(`${error.message}`, "error")
+                    dispatchFlashMessage(`${error.message}`, "error");
                     setIsLoading(false);
                 } else {
                     setIsLoading(false);
                     formik.resetForm();
-                    dispatchFlashMessage("Item Edited Successfully", "success")
-                    dispatchUpdateItemSucceed()
+                    dispatchFlashMessage("Item Edited Successfully", "success");
+                    dispatchUpdateItemSucceed();
                     localStorage.removeItem("bug-tracker-image");
                     navigate(`/item/${data[0].id}`);
                 }
             } catch (e) {
                 setIsLoading(false);
-                dispatchFlashMessage("Editing Item Failed", "error")
+                dispatchFlashMessage("Editing Item Failed", "error");
             }
         },
     });
@@ -175,7 +165,7 @@ const EditItem: React.FC = () => {
                     <Typography variant="h5" component="div" align="left" mb={1}>
                         Add Bug Or Feature Request
                     </Typography>
-                    <Divider/>
+                    <Divider />
                 </Grid>
                 <Grid item md={8} mt={2}>
                     <form
@@ -195,7 +185,7 @@ const EditItem: React.FC = () => {
                             onChange={fieldChangeHandler}
                             error={formik.touched.title && Boolean(formik.errors.title)}
                             helperText={formik.touched.title && formik.errors.title}
-                            style={{marginBottom: "10px", width: "90%"}}
+                            style={{ marginBottom: "10px", width: "90%" }}
                             autoFocus
                         />
                         <TextField
@@ -209,7 +199,7 @@ const EditItem: React.FC = () => {
                             onChange={fieldChangeHandler}
                             error={formik.touched.description && Boolean(formik.errors.description)}
                             helperText={formik.touched.description && formik.errors.description}
-                            style={{marginBottom: "10px", width: "90%"}}
+                            style={{ marginBottom: "10px", width: "90%" }}
                         />
 
                         <div
@@ -223,7 +213,7 @@ const EditItem: React.FC = () => {
                         >
                             <FormControl
                                 size="small"
-                                style={{width: "22%"}}
+                                style={{ width: "22%" }}
                                 error={formik.touched.type && Boolean(formik.errors.type)}
                             >
                                 <InputLabel id="type">Type</InputLabel>
@@ -245,7 +235,7 @@ const EditItem: React.FC = () => {
 
                             <FormControl
                                 size="small"
-                                style={{width: "22%"}}
+                                style={{ width: "22%" }}
                                 error={formik.touched.status && Boolean(formik.errors.status)}
                             >
                                 <InputLabel id="status">Status</InputLabel>
@@ -270,7 +260,7 @@ const EditItem: React.FC = () => {
 
                             <FormControl
                                 size="small"
-                                style={{width: "22%"}}
+                                style={{ width: "22%" }}
                                 error={formik.touched.priority && Boolean(formik.errors.priority)}
                             >
                                 <InputLabel id="priority">Priority</InputLabel>
@@ -292,7 +282,7 @@ const EditItem: React.FC = () => {
                                     <FormHelperText>{formik.errors.priority}</FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl size="small" style={{width: "22%"}}>
+                            <FormControl size="small" style={{ width: "22%" }}>
                                 <InputLabel id="platform">Platform</InputLabel>
                                 <Select
                                     labelId="platform"
@@ -310,7 +300,7 @@ const EditItem: React.FC = () => {
                                     <MenuItem value="Web">Web</MenuItem>
                                 </Select>
                             </FormControl>
-                            <FormControl size="small" style={{width: "22%", marginTop: "15px"}}>
+                            <FormControl size="small" style={{ width: "22%", marginTop: "15px" }}>
                                 <InputLabel id="product">Product</InputLabel>
                                 <Select
                                     labelId="product"
@@ -344,7 +334,7 @@ const EditItem: React.FC = () => {
                                 helperText={
                                     formik.touched.platformVersion && formik.errors.platformVersion
                                 }
-                                style={{width: "22%", marginTop: "15px"}}
+                                style={{ width: "22%", marginTop: "15px" }}
                             />
                             {members && (
                                 <Autocomplete
@@ -356,18 +346,18 @@ const EditItem: React.FC = () => {
                                         setAssignedTo([...newValue]);
                                     }}
                                     options={members.filter(
-                                        ({user_id: id1}) =>
-                                            !assignedTo.some(({user_id: id2}) => id2 === id1)
+                                        ({ user_id: id1 }) =>
+                                            !assignedTo.some(({ user_id: id2 }) => id2 === id1)
                                     )}
                                     getOptionLabel={option => option.name}
                                     filterSelectedOptions
                                     renderTags={(tagValue, getTagProps) =>
                                         tagValue.map((option, index) => (
                                             <Chip
-                                                avatar={<Avatar alt={option.name}/>}
+                                                avatar={<Avatar alt={option.name} />}
                                                 label={option.name}
                                                 size="small"
-                                                {...getTagProps({index})}
+                                                {...getTagProps({ index })}
                                                 //@ts-ignore
                                                 disabled={option === state.appUser}
                                             />
@@ -393,7 +383,7 @@ const EditItem: React.FC = () => {
                                 color="error"
                                 variant="contained"
                                 fullWidth
-                                style={{width: "40%", marginRight: "10px"}}
+                                style={{ width: "40%", marginRight: "10px" }}
                                 disabled={isLoading}
                                 onClick={() => navigate(-1)}
                             >
@@ -404,19 +394,16 @@ const EditItem: React.FC = () => {
                                 variant="contained"
                                 fullWidth
                                 type="submit"
-                                style={{width: "40%", marginLeft: "10px"}}
+                                style={{ width: "40%", marginLeft: "10px" }}
                                 disabled={isLoading}
                             >
-                                {isLoading ? <CircularProgress size={25}/> : "Update"}
+                                {isLoading ? <CircularProgress size={25} /> : "Update"}
                             </Button>
                         </div>
                     </form>
                 </Grid>
                 <Grid item md={4} mt={2}>
-                    <ImageUpload
-                        images={images}
-                        setImages={setImages}
-                    />
+                    <ImageUpload images={images} setImages={setImages} />
                 </Grid>
             </Grid>
         </>
