@@ -45,8 +45,6 @@ const ResetPassword: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // const token = supabase.auth.session()?.access_token
-        // if (token) supabase.auth.setAuth(token);
         if (
             newPasswordRef.current?.value.toString().trim() !== "" &&
             confirmNewPasswordRef.current?.value.toString().trim() ===
@@ -70,7 +68,8 @@ const ResetPassword: React.FC = () => {
                 setIsLoading(false);
             }
         } else {
-            dispatchFlashMessage("new password and confirm password should be same", "error");
+            // dispatchFlashMessage("new password and confirm password should be same", "error");
+            dispatchFlashMessage("change password is disabled for guest user", "error");
         }
     };
 
@@ -170,17 +169,6 @@ const ResetPassword: React.FC = () => {
                                 }
                             />
                         </FormControl>
-
-                        {/* <FormControlLabel
-                            control={
-                                <Checkbox
-                                    value="remember"
-                                    color="primary"
-                                    onChange={rememberMeHandler}
-                                />
-                            }
-                            label="Remember me"
-                        /> */}
                         <Button
                             type="submit"
                             disabled={isLoading}
@@ -190,18 +178,6 @@ const ResetPassword: React.FC = () => {
                         >
                             {isLoading ? <CircularProgress size={25} /> : "Change Password"}
                         </Button>
-                        {/* <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link href="#" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid> */}
                     </Box>
                 </Box>
             </Container>
