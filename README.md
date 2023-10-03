@@ -1,7 +1,10 @@
 ## Demo
-https://bug-feature-tracker.netlify.app/ \n
-demo u.s.e.r.name: xowad82765@musezoo.com \n
+https://bug-feature-tracker.netlify.app/
+
+demo u.s.e.r.name: xowad82765@musezoo.com
+
 demo p.a.s.s.word: guest123
+
 
 # Getting Started with Create React App
 
